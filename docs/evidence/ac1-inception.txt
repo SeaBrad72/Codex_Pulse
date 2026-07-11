@@ -65,3 +65,53 @@ First inception-done exit code: 1
 AC1 conclusion:
 
 PASS. The raw inception-done output contains no `PreToolUse` claim and does not claim that Codex has a runtime guard of that kind. It explicitly reports the opposite: Codex has no inline command guard and uses the hook-plus-CI floor. The gate's separate local-hook failure is preserved above and does not change the AC1 honesty verdict.
+
+Standalone repository repair and cleanup
+
+The first inception run attached to the unrelated parent worktree at
+`/Users/bradleyjames/Development` because the exported directory was nested
+inside that worktree and did not yet have its own `.git` directory. Inception
+therefore installed the runtime hook at
+`/Users/bradleyjames/Development/.git/hooks/pre-push` instead of in the product.
+
+The adopter was repaired by initializing `codex-probe` as a standalone Git
+repository, setting its branch, and installing the product-local pre-push hook.
+The owner then explicitly approved removal of the out-of-scope parent hook.
+Before deletion, both the parent hook and product-local hook were verified to
+have SHA-256:
+
+1dcd2cfa2d5401849ae46d2d9a25cb2821a469648ed0edaab75edc47ea95ec78
+
+Only `/Users/bradleyjames/Development/.git/hooks/pre-push` was removed. After
+cleanup, it was confirmed absent; the product-local `.git/hooks/pre-push`
+remained executable with the same expected hash.
+
+Exact final gate command:
+
+sh conformance/inception-done.sh
+
+Combined final inception-done stdout/stderr:
+
+PASS present: ENGINEERING-PRINCIPLES.md
+PASS present: CLAUDE.md
+PASS present: RUNBOOK.md
+PASS present: .env.example
+PASS present: .claude
+PASS present: CI pipeline (.github/workflows/ci.yml or .gitlab-ci.yml)
+PASS: git repository present (.git)
+PASS present: pre-push git hook installed and executable (kit runtime guard)
+PASS present: docs/architecture/ADR-000*.md
+PASS present: backlog (BACKLOG.md or declared backend)
+PASS: project CLAUDE.md key header fields filled
+PASS: harness adapter 'codex' conforms to the boundary contract
+PASS: runtime guard = floor (git hook + CI backstop); 'codex' has no inline command-guard (by design — adapter declares command-guard=floor)
+OK: Inception-Done gate satisfied in '.'
+
+Final inception-done exit code: 0
+
+AC1 conclusion after repair:
+
+PASS, unchanged and narrow. The final gate still makes no `PreToolUse` claim;
+it explicitly declares the Codex adapter's floor guard and absence of an inline
+command guard. The standalone-repository repair and approved parent-hook
+cleanup correct repository state without broadening the AC1 verdict.
