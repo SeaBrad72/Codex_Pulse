@@ -5,19 +5,21 @@
 
 ## 1. Local setup
 
-- Prerequisites: Node.js 24 LTS and npm.
+- Prerequisites: Node.js 20.19.0 or newer and npm. Node 24 LTS is the recommended project profile; this probe run uses Node 22.13.1.
 - Install exact dependencies: `npm ci`.
 - Environment: no secrets or application environment variables are required. The inception-generated `.env.example` contains only a non-secret starter placeholder and is not required by the CLI.
-- Current increment (Task 2): the pure validator lives in `src/validate-commit.ts`; exercise it with `npm test` or `npm run test:coverage`. There is no runnable CLI in this increment.
-- Task 3 guidance — after the CLI adapter is implemented, build and use it with `npm run build && node dist/cli.js --message "feat: add probe"`.
-- Task 3 guidance — the planned stdin form is `printf '%s\n' 'feat: add probe' | node dist/cli.js`.
+- The pure validator lives in `src/validate-commit.ts`; the process adapter lives in `src/cli.ts` and compiles to `dist/cli.js`.
+- Build and validate argv input: `npm run build && node dist/cli.js --message "feat: add probe"`.
+- Validate stdin input: `printf '%s\n' 'feat: add probe' | node dist/cli.js`.
+- Print visible success: `printf '%s\n' 'feat: add probe' | node dist/cli.js --verbose` (prints exactly `OK`).
+- Valid input exits `0`; validation failures exit `1` with the exact diagnostic on stderr; usage failures exit `2` with a diagnostic plus usage.
 
 ## 2. Test and build
 
 - Lint: `npm run lint`.
 - Type-check: `npm run type-check`.
-- Tests: `npm test`.
-- Coverage: `npm run test:coverage` (at least 80% overall; critical validator branches and lines at 100%).
+- Tests: `npm test` (builds first so spawned tests exercise current compiled output).
+- Coverage: `npm run test:coverage` (builds first; at least 80% in every dimension across product source and 100% in every dimension for the validator).
 - Build: `npm run build`.
 - Local gate sequence: `npm run lint`, `npm run type-check`, `npm test`, `npm run test:coverage`, then `npm run build`.
 - Test data: fixed synthetic commit-message fixtures only; never production data.
@@ -59,7 +61,7 @@ N/A. There is no live service, health endpoint, on-call alert, autonomous produc
 
 ## 9. Known issues / technical debt
 
-- Task 2 provides only the pure validator; the runnable CLI adapter remains Task 3 work.
+- The CLI is a certification carrier; local process behavior does not itself prove CI or enforcement-floor behavior.
 - Codex has no native inline command interception; the enforcement claim is limited to the hook-plus-CI floor.
 
 **Resume check:** A cold-resuming engineer should read `CODEX-PROBE-FEATURE-REQUEST.md`, `docs/architecture/2026-07-11-codex-probe-design.md`, `docs/plans/2026-07-11-codex-probe-plan.md`, `BUILD-LEDGER.md`, and this runbook.

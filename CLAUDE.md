@@ -2,7 +2,7 @@
 
 **Project:** commitlint-lite  
 **Intent owner:** Bradley James  
-**Status:** Active  
+**Status:** Active — CLI increment in review
 **Created:** 2026-07-11  
 **Kit version adopted:** v3.119.0
 
@@ -72,15 +72,18 @@ npm run type-check
 npm test
 npm run test:coverage
 npm run build
+node dist/cli.js --message "feat: add probe"
+printf 'fix: stdin proof\n' | node dist/cli.js --verbose
 ```
 
-Task 2 provides the pure validator in `src/validate-commit.ts`; it is exercised by the test and coverage commands above. There is no runnable CLI yet.
-
-Task 3 will add compiled CLI usage:
+The pure validator lives in `src/validate-commit.ts`; `src/cli.ts` provides the compiled process boundary. Valid input is silent unless `--verbose` is supplied:
 
 ```sh
 node dist/cli.js --message "feat: add probe"
+printf 'docs: stdin example\n' | node dist/cli.js --verbose
 ```
+
+Validation failures exit `1` with the validator diagnostic on stderr. Usage failures exit `2` with a stable diagnostic plus usage. Node 20.19.0 is the minimum admitted runtime for the locked toolchain; Node 24 LTS remains the recommended profile.
 
 ## 6. Project conventions
 

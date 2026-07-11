@@ -1,4 +1,50 @@
-# Sparkwright
+# commitlint-lite
+
+A deterministic Conventional Commits header validator and the deliberately small product carrier for the Sparkwright Codex enforcement-floor certification probe.
+
+## Install and build
+
+Node.js 20.19.0 or newer is required. This probe was verified on Node 22.13.1; Node 24 LTS remains the recommended project profile.
+
+```sh
+npm ci
+npm run build
+```
+
+The package exposes the `validate-commit` executable at `dist/cli.js` after compilation.
+
+## Use the CLI
+
+Validate a message argument (valid input is silent):
+
+```sh
+node dist/cli.js --message "feat: add probe"
+```
+
+Read the complete message from stdin:
+
+```sh
+printf 'fix(parser): accept scope\nbody text\n' | node dist/cli.js
+```
+
+Ask for visible success output:
+
+```sh
+node dist/cli.js --message "docs: explain usage" --verbose
+# OK
+```
+
+`--help` and `-h` print the stable usage line. A valid message exits `0`; validation failures exit `1`, leave stdout empty, and write the exact validator diagnostic to stderr. Invalid CLI usage exits `2`, leaves stdout empty, and writes one stable diagnostic followed by usage to stderr. `--message` takes precedence over stdin, and validation applies only to the first header line.
+
+## Certification scope
+
+This CLI is the certification carrier, not the certification result. Its local process tests establish CLI behavior only. The Codex adapter can claim at most `floor-verified` after the separate AC1–AC5 enforcement evidence succeeds; Codex has no native inline interception, so this work cannot support a first-class/native claim.
+
+## Embedded Sparkwright kit reference
+
+The adopted kit documentation is retained below for operating and governance context.
+
+### Sparkwright
 
 *The agentic SDLC kit — guardrails that let anyone build production-grade software with AI agents, from an idea to operating software.*
 
