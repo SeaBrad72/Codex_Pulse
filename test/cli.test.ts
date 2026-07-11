@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import { type CliIo, createProcessIo, runCli } from '../src/cli.js';
+import { validateCommitHeader } from '../src/validate-commit.js';
 
 function createIo(stdin = ''): {
   io: CliIo;
@@ -233,5 +234,93 @@ describe('createProcessIo', () => {
       Promise.race([harness.result, harness.blocked.then(() => 'blocked')]),
     ).resolves.toBe(`${'x'.repeat(72)}y`);
     expect(harness.returnIterator).toHaveBeenCalledOnce();
+  });
+
+  it('bounds finite oversized astral input to 73 UTF-16 code units', async () => {
+    const input = '😀'.repeat(100);
+    const stdin = {
+      setEncoding: vi.fn(),
+      async *[Symbol.asyncIterator](): AsyncGenerator<string> {
+        yield input;
+      },
+    };
+    const io = createProcessIo({
+      stdin,
+      stdout: { write: vi.fn() },
+      stderr: { write: vi.fn() },
+    });
+
+    const result = await io.readStdin();
+
+    expect(result).toBe(input.slice(0, 73));
+    expect(result.length).toBe(73);
+  });
+
+  it.each([
+    ['at', `${'x'.repeat(71)}😀`],
+    ['over', `${'x'.repeat(72)}😀`],
+  ])(
+    'bounds astral input %s the boundary without waiting for an open producer',
+    async (_position, input) => {
+      const harness = readOpenStdin([input]);
+
+      await expect(
+        Promise.race([harness.result, harness.blocked.then(() => 'blocked')]),
+      ).resolves.toBe(input.slice(0, 73));
+      expect((await harness.result).length).toBeLessThanOrEqual(73);
+      expect(harness.returnIterator).toHaveBeenCalledOnce();
+    },
+  );
+
+  it('ignores large trailing data after 72 ASCII units and an astral character', async () => {
+    const input = `${'x'.repeat(72)}😀${'y'.repeat(10_000)}`;
+    const stdin = {
+      setEncoding: vi.fn(),
+      async *[Symbol.asyncIterator](): AsyncGenerator<string> {
+        yield input;
+      },
+    };
+    const io = createProcessIo({
+      stdin,
+      stdout: { write: vi.fn() },
+      stderr: { write: vi.fn() },
+    });
+
+    const result = await io.readStdin();
+
+    expect(result).toBe(input.slice(0, 73));
+    expect(result.length).toBe(73);
+  });
+
+  it('returns over-boundary astral input as too-long and cleans up the iterator', async () => {
+    const input = `feat: ${'x'.repeat(66)}😀`;
+    const harness = readOpenStdin([input]);
+
+    const result = await Promise.race([
+      harness.result,
+      harness.blocked.then(() => 'blocked' as const),
+    ]);
+
+    expect(result).not.toBe('blocked');
+    expect(result.length).toBe(73);
+    expect(validateCommitHeader(result)).toMatchObject({ ok: false, code: 'too-long' });
+    expect(harness.returnIterator).toHaveBeenCalledOnce();
+  });
+
+  it('preserves normal Unicode headers below the boundary', async () => {
+    const input = 'feat: preserve café 😀';
+    const stdin = {
+      setEncoding: vi.fn(),
+      async *[Symbol.asyncIterator](): AsyncGenerator<string> {
+        yield input;
+      },
+    };
+    const io = createProcessIo({
+      stdin,
+      stdout: { write: vi.fn() },
+      stderr: { write: vi.fn() },
+    });
+
+    await expect(io.readStdin()).resolves.toBe(input);
   });
 });

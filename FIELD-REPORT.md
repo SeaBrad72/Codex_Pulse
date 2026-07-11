@@ -19,12 +19,12 @@ The kit did not earn Codex certification: AC1 and AC3 passed, AC2 was not exerci
 
 ## 2. Prioritized harvest
 
-Three root causes explain most of the findings. Repository-boundary detection was too weak (K1, K2, K4); the exported distribution and its control-plane contracts drifted apart (K3, K7, K9); and proof setup did not initially guarantee a meaningful event (K10). Final security review also found an unbounded stdin boundary (K11) and terminal-control reflection (K12); both product defects were resolved without changing the certification result. K5 and K6 are narrower runtime/tooling integration mismatches, while K8 is a capability-discovery issue.
+Three root causes explain most of the findings. Repository-boundary detection was too weak (K1, K2, K4); the exported distribution and its control-plane contracts drifted apart (K3, K7, K9); and proof setup did not initially guarantee a meaningful event (K10). Final security review also found an unbounded stdin boundary (K11) and terminal-control reflection (K12). Re-review caught an equality/code-unit mismatch in the first K11 fix: Unicode code-point iteration could skip a UTF-16 cutoff of exactly 73. The corrected bound and K12 remain resolved without changing the certification result. K5 and K6 are narrower runtime/tooling integration mismatches, while K8 is a capability-discovery issue.
 
 | Rank | K-id(s) | Finding | Severity | Proposed backlog item |
 |------|---------|---------|----------|-----------------------|
 | 1 | K9 | A clean exported baseline's whole-repository Semgrep gate reports 22 blocking findings, preventing the first green live CI run. | blocker | Remediate or explicitly baseline the shipped SAST findings, then repeat certification from a fresh export. |
-| 2 | K11 | Stdin validation waited for EOF and retained unbounded input although only the first 73 header characters can affect the result. | high | Keep the direct-stream regressions and use the bounded, early-return reader as the profile scaffold pattern. |
+| 2 | K11 | Stdin validation first waited for EOF and retained unbounded input; its initial bounded fix could then skip the exact cutoff when an astral code point advanced UTF-16 length from 72 to 74. | high | Keep the finite/open Unicode regressions and use an unskippable `>=` cutoff with a first-73-UTF-16-unit slice as the profile scaffold pattern. |
 | 3 | K1, K2, K4 | Export, preflight, and inception accept a kit nested in another worktree without proving that the current directory owns the Git root. | blocker / high | Require kit root = Git toplevel, verify tracked kit sentinels, and refuse inception when the destination does not own `.git`. |
 | 4 | K3 | The exporter required a backlog declaration absent from the supplied v3.119.0 bundle and left a partial destination. | blocker | Align the bundle with the exporter contract and make failed export cleanup transactional. |
 | 5 | K7 | A non-DB export retained DR artifacts and emitted a workflow that failed an aggregate selftest. | high | Make profile pruning and proportional-gate generation internally consistent; add a clean-export aggregate fixture. |
@@ -40,7 +40,7 @@ Three root causes explain most of the findings. Repository-boundary detection wa
 - Clone dry-runs prevented the Task 4 workflow patch from being applied when aggregate conformance was already red.
 - Live CI failed closed on the Semgrep baseline rather than allowing a partial green result to count as AC4.
 - The AC3 evidence review rejected the initial `Everything up-to-date` transcript as vacuous. A fixture directly atop remote `main` made the rerun meaningful, and the hook refused it.
-- Final security review caught the stdin wait/memory boundary and terminal-control reflection. Witnessed TDD resolved both while leaving every acceptance outcome and the failed-certification verdict unchanged.
+- Final security review caught the stdin wait/memory boundary and terminal-control reflection. Re-review then caught the equality/code-unit mismatch in the first bounded reader. A second witnessed RED/GREEN cycle made both cutoffs unskippable and proved finite/open astral inputs retain at most 73 UTF-16 code units; every acceptance outcome and the failed-certification verdict remain unchanged.
 
 ## 4. What never ran
 

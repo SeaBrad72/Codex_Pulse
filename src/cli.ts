@@ -33,8 +33,8 @@ export function createProcessIo(bindings: ProcessBindings): CliIo {
             }
             input += '\r';
             pendingCarriageReturn = false;
-            if (input.length === 73) {
-              return input;
+            if (input.length >= 73) {
+              return input.slice(0, 73);
             }
           }
           if (character === '\n') {
@@ -45,8 +45,8 @@ export function createProcessIo(bindings: ProcessBindings): CliIo {
             continue;
           }
           input += character;
-          if (input.length === 73) {
-            return input;
+          if (input.length >= 73) {
+            return input.slice(0, 73);
           }
         }
       }
