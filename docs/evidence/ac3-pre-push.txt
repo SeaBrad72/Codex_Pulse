@@ -34,3 +34,44 @@ Honest ceiling: the universal hook remains a speed bump, not a security boundary
 The deliberate --no-verify bypass remains possible and was not tested. No local
 divergence, force push, direct ref mutation, or bypass was created to manufacture
 a denial transcript.
+
+Non-vacuous second attempt
+
+Captured (UTC): 2026-07-11T19:43:18Z
+Starting branch: main
+
+Local-only empty fixture commit:
+07e7bf40ee46d82952136cf4c2d874243571dab9
+
+Fixture parent (exact remote main before attempt):
+39c58724afb30685bea761f53485cde06354c8e8
+
+Exact command:
+git push origin main
+
+Complete stdout/stderr:
+kit guard: 13: pushing directly to main/master bypasses review - open a PR (human-gated).
+  override (deliberate): git push --no-verify
+error: failed to push some refs to 'https://github.com/SeaBrad72/Codex_Pulse.git'
+
+Exit code: 1
+
+Before:
+local main:  07e7bf40ee46d82952136cf4c2d874243571dab9
+remote main: 39c58724afb30685bea761f53485cde06354c8e8
+
+After:
+local main:  07e7bf40ee46d82952136cf4c2d874243571dab9
+remote main: 39c58724afb30685bea761f53485cde06354c8e8
+
+Final branch: codex/ac3-field-report
+Local main state: one commit ahead of remote main; the empty fixture is retained
+locally and was not pushed under any ref.
+
+Verdict: PASS. With a real pending main ref update, the exact ordinary command
+exited nonzero and the installed pre-push hook emitted its explicit push-to-main
+refusal. Remote main remained unchanged.
+
+Honest ceiling: the universal hook is still a speed bump, not a security boundary.
+Its own refusal output documents the deliberate --no-verify bypass. That bypass was
+not exercised, and no force option or API ref mutation was used.
