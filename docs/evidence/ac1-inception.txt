@@ -1,0 +1,67 @@
+AC1 — Codex inception honesty
+Date: 2026-07-11
+
+Exact inception command:
+
+sh scripts/incept.sh --name commitlint-lite --intent-owner "Bradley James" \
+  --stack typescript-node --team solo --backlog md --ci github \
+  --harness codex --operator-fluency practitioner --mode lean --no-db --noninteractive
+
+Combined inception stdout/stderr:
+
+notice: choose your deploy target deliberately — docs/adoption/DEPLOYMENT-ENVIRONMENT.md (cards + fit rubric); record fit + maturity in RUNBOOK §4 (linted by conformance/deploy-decision-integrity.sh).
+notice: target harness(es) = 'codex'. Confirm this is the BEST-FIT harness (fit-derived, not the default). Only 'claude-code' is a VERIFIED harness (kit self-hosts on it); 'gemini'/'codex'/'cursor' are EXPERIMENTAL (declared against the boundary contract, not exercised end-to-end — unproven, not 'supported'). Record WHY it fits (cite a fit dimension) in CLAUDE.md §harness-neutrality — linted by conformance/harness-decision-integrity.sh. Cards + fit rubric: docs/operations/harness-adapters.md.
+wrote .env.example (PORT=3000 for typescript-node; copy to a gitignored .env and fill values — see RUNBOOK §1)
+ensured .env is gitignored (real secrets stay out of git)
+warning: .github/CODEOWNERS contains @your-org/* placeholder teams — replace them with REAL teams/users
+         BEFORE enabling branch protection (require_code_owner_reviews), or EVERY merge
+         will block (the placeholder owners don't exist). See docs/operations/review-lane.md.
+copied starter scaffold from profiles/typescript-node/scaffold/ (brownfield-safe) + merged its .gitignore rules
+  run it: see profiles/typescript-node/scaffold/README.md → 'See it run' (start the app, curl /healthz)
+non-DB archetype: stripped the kit:db-backed CI region + removed the .db-backed marker
+note: containerize when ready — adapt profiles/typescript-node/Dockerfile + compose.yaml to your app, then the image-build CI gates activate (they skip until a Dockerfile is present).
+installed runtime guard: ../../.git/hooks/pre-push (blocks force-push/push-to-main; bypass: git push --no-verify)
+harness adapter 'codex': conforms to the boundary contract.
+
+✅ Inception scaffolding complete for "commitlint-lite" (kit v3.119.0, stack typescript-node, CI github, mode lean, governance solo).
+Note: the kit's principles doc moved to ENGINEERING-PRINCIPLES.md; this new CLAUDE.md is YOUR project guide (charter, config, roles).
+
+Do the judgment steps incept does NOT automate (see START-HERE.md):
+  1. Write the charter prose in CLAUDE.md (problem, vision, success metrics, scope).
+  2. Record the real stack decision in docs/architecture/ADR-000-stack.md.
+  3. Protect main NOW — run the gh-api command in profiles/typescript-node/BRANCH-PROTECTION.md; verify with: sh conformance/branch-protection.sh
+  4. Declare per-project config in CLAUDE.md §3 (autonomy tiers, SLO, review routing, WIP).
+  5. Assign roles in CLAUDE.md §4.
+  6. Local runtime guard installed at .git/hooks/pre-push (force-push/push-to-main; bypass: --no-verify).
+     Other runtimes: pipe proposed commands through scripts/kit-guard (docs/operations/runtime-guards.md).
+
+Verify: sh conformance/inception-done.sh
+
+Inception exit code: 0
+
+Exact first gate command:
+
+sh conformance/inception-done.sh
+
+Combined first inception-done stdout/stderr:
+
+PASS present: ENGINEERING-PRINCIPLES.md
+PASS present: CLAUDE.md
+PASS present: RUNBOOK.md
+PASS present: .env.example
+PASS present: .claude
+PASS present: CI pipeline (.github/workflows/ci.yml or .gitlab-ci.yml)
+PASS: git repository present (.git)
+FAIL: pre-push git hook missing (.git/hooks/pre-push) — re-run incept (it installs the runtime guard into .git/hooks)
+PASS present: docs/architecture/ADR-000*.md
+PASS present: backlog (BACKLOG.md or declared backend)
+PASS: project CLAUDE.md key header fields filled
+PASS: harness adapter 'codex' conforms to the boundary contract
+PASS: runtime guard = floor (git hook + CI backstop); 'codex' has no inline command-guard (by design — adapter declares command-guard=floor)
+FAIL: Inception-Done gate not satisfied in '.'
+
+First inception-done exit code: 1
+
+AC1 conclusion:
+
+PASS. The raw inception-done output contains no `PreToolUse` claim and does not claim that Codex has a runtime guard of that kind. It explicitly reports the opposite: Codex has no inline command guard and uses the hook-plus-CI floor. The gate's separate local-hook failure is preserved above and does not change the AC1 honesty verdict.
