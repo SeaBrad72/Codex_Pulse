@@ -67,12 +67,16 @@ Codex is the harness under certification and fits the model-family dimension of 
 
 ```sh
 npm ci
-npm run dev
+npm run lint
+npm run type-check
 npm test
+npm run test:coverage
 npm run build
 ```
 
-After the CLI slice is implemented, use the built carrier with:
+Task 2 provides the pure validator in `src/validate-commit.ts`; it is exercised by the test and coverage commands above. There is no runnable CLI yet.
+
+Task 3 will add compiled CLI usage:
 
 ```sh
 node dist/cli.js --message "feat: add probe"

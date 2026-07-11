@@ -8,9 +8,9 @@
 - Prerequisites: Node.js 24 LTS and npm.
 - Install exact dependencies: `npm ci`.
 - Environment: no secrets or application environment variables are required. The inception-generated `.env.example` contains only a non-secret starter placeholder and is not required by the CLI.
-- Run the current local starter before the CLI task: `npm run dev`.
-- After Task 3, build and use the CLI: `npm run build && node dist/cli.js --message "feat: add probe"`.
-- Stdin form after Task 3: `printf '%s\n' 'feat: add probe' | node dist/cli.js`.
+- Current increment (Task 2): the pure validator lives in `src/validate-commit.ts`; exercise it with `npm test` or `npm run test:coverage`. There is no runnable CLI in this increment.
+- Task 3 guidance — after the CLI adapter is implemented, build and use it with `npm run build && node dist/cli.js --message "feat: add probe"`.
+- Task 3 guidance — the planned stdin form is `printf '%s\n' 'feat: add probe' | node dist/cli.js`.
 
 ## 2. Test and build
 
@@ -59,7 +59,7 @@ N/A. There is no live service, health endpoint, on-call alert, autonomous produc
 
 ## 9. Known issues / technical debt
 
-- The inception-generated starter service is temporary and will be replaced by the planned CLI through Task 2 and Task 3 TDD.
+- Task 2 provides only the pure validator; the runnable CLI adapter remains Task 3 work.
 - Codex has no native inline command interception; the enforcement claim is limited to the hook-plus-CI floor.
 
 **Resume check:** A cold-resuming engineer should read `CODEX-PROBE-FEATURE-REQUEST.md`, `docs/architecture/2026-07-11-codex-probe-design.md`, `docs/plans/2026-07-11-codex-probe-plan.md`, `BUILD-LEDGER.md`, and this runbook.
