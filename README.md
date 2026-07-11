@@ -2,6 +2,8 @@
 
 A deterministic Conventional Commits header validator and the deliberately small product carrier for the Sparkwright Codex enforcement-floor certification probe.
 
+Public vehicle repository: [`SeaBrad72/Codex_Pulse`](https://github.com/SeaBrad72/Codex_Pulse). The product and package remain named `commitlint-lite`.
+
 ## Install and build
 
 Node.js 20.19.0 or newer is required. This probe was verified on Node 22.13.1; Node 24 LTS remains the recommended project profile.

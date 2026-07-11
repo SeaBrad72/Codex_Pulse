@@ -12,7 +12,7 @@
 
 | Item | Owner | Started | Links |
 |------|-------|---------|-------|
-| Codex probe (dogfood vehicle #1) | Codex; Bradley James is intent owner | 2026-07-11 | [Requirements](CODEX-PROBE-FEATURE-REQUEST.md) · [Approved design](docs/architecture/2026-07-11-codex-probe-design.md) · [Approved plan](docs/plans/2026-07-11-codex-probe-plan.md) |
+| | | | |
 
 ## In Review
 
@@ -36,10 +36,10 @@
 
 | Item | Blocked on | Since | Event-retro link |
 |------|------------|-------|------------------|
-| | | | |
+| Codex probe (dogfood vehicle #1) | AC4: remediate the exported kit's 22 pre-existing Semgrep findings, then repeat certification from a fresh baseline | 2026-07-11 | [Field Report](FIELD-REPORT.md) · [Acceptance matrix](docs/evidence/acceptance-matrix.md) · [PR #1](https://github.com/SeaBrad72/Codex_Pulse/pull/1) |
 
 ## Backlog
 
-No additional candidates. Scope is limited to one serialized probe vehicle.
+No additional candidates. Scope remains limited to one serialized probe vehicle; Semgrep remediation belongs to the source kit before a fresh certification attempt.
 
 **Last Updated:** 2026-07-11

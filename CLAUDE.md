@@ -99,6 +99,6 @@ Validation failures exit `1` with the validator diagnostic on stderr. Usage fail
 - Approved plan: `docs/plans/2026-07-11-codex-probe-plan.md`
 - Backlog: `BACKLOG.md`
 - Runbook: `RUNBOOK.md`
-- Repository and live URLs: local-only until the separately approved GitHub evidence task
+- Public repository: `https://github.com/SeaBrad72/Codex_Pulse`; registration evidence: PR #1 and Actions run `29162838668`
 
 **Last Updated:** 2026-07-11
