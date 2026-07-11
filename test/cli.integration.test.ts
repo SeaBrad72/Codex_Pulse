@@ -2,12 +2,30 @@ import { spawnSync } from 'node:child_process';
 import { mkdtempSync, rmSync, symlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import { describe, expect, it } from 'vitest';
 
 const cliPath = fileURLToPath(new URL('../dist/cli.js', import.meta.url));
 const usage = 'usage: validate-commit [--message <message>] [--verbose]\n';
+
+function runWithOutputError(stream: 'stdout' | 'stderr', code: string) {
+  const args = stream === 'stdout' ? ['--help'] : ['--message', 'bad message'];
+  const script = `
+    const cliPath = ${JSON.stringify(cliPath)};
+    process.argv = [process.execPath, cliPath, ...${JSON.stringify(args)}];
+    process[${JSON.stringify(stream)}].write = function () {
+      const error = Object.assign(new Error('broken output pipe'), { code: ${JSON.stringify(code)} });
+      this.emit('error', error);
+      return false;
+    };
+    await import(${JSON.stringify(pathToFileURL(cliPath).href)});
+  `;
+
+  return spawnSync(process.execPath, ['--input-type=module', '-e', script], {
+    encoding: 'utf8',
+  });
+}
 
 describe('compiled validate-commit CLI', () => {
   it('accepts a valid --message silently', () => {
@@ -84,6 +102,29 @@ describe('compiled validate-commit CLI', () => {
     expect(result.stdout).toBe(usage);
     expect(result.stderr).toBe('');
   });
+
+  it.each(['stdout', 'stderr'] as const)(
+    'exits quietly when the %s consumer closes the pipe',
+    (stream) => {
+      const result = runWithOutputError(stream, 'EPIPE');
+
+      expect(result.status).toBe(0);
+      expect(result.stdout).toBe('');
+      expect(result.stderr).toBe('');
+    },
+  );
+
+  it.each(['stdout', 'stderr'] as const)(
+    'keeps non-EPIPE %s errors visible and nonzero',
+    (stream) => {
+      const result = runWithOutputError(stream, 'EIO');
+
+      expect(result.status).toBe(1);
+      expect(result.stdout).toBe('');
+      expect(result.stderr).toContain('Error: broken output pipe');
+      expect(result.stderr).toContain("code: 'EIO'");
+    },
+  );
 
   it.each([
     {

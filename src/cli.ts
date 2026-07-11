@@ -92,6 +92,20 @@ const isMain =
   process.argv[1] !== undefined &&
   realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1]);
 if (isMain) {
+  let outputPipeClosed = false;
+  const handleOutputError = (error: Error): void => {
+    if ((error as NodeJS.ErrnoException).code === 'EPIPE') {
+      outputPipeClosed = true;
+      process.exitCode = 0;
+      return;
+    }
+    throw error;
+  };
+  process.stdout.on('error', handleOutputError);
+  process.stderr.on('error', handleOutputError);
+
   const exitCode = await runCli(process.argv.slice(2), createProcessIo(process));
-  process.exitCode = exitCode;
+  if (!outputPipeClosed) {
+    process.exitCode = exitCode;
+  }
 }
