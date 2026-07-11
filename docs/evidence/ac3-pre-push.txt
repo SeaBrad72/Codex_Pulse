@@ -1,0 +1,36 @@
+AC3 pre-push history-protection evidence
+
+Captured (UTC): 2026-07-11T19:40:30Z
+CWD: /Users/bradleyjames/Development/Codex-pulse/codex-probe
+Current branch: codex/ac3-field-report
+Origin: https://github.com/SeaBrad72/Codex_Pulse.git
+
+Installed hook executable: yes
+Installed hook SHA-256: 1dcd2cfa2d5401849ae46d2d9a25cb2821a469648ed0edaab75edc47ea95ec78
+Tracked hook SHA-256:   1dcd2cfa2d5401849ae46d2d9a25cb2821a469648ed0edaab75edc47ea95ec78
+
+Exact command:
+git push origin main
+
+Complete stdout/stderr:
+Everything up-to-date
+
+Exit code: 0
+
+Before:
+local main:  39c58724afb30685bea761f53485cde06354c8e8
+remote main: 39c58724afb30685bea761f53485cde06354c8e8
+
+After:
+local main:  39c58724afb30685bea761f53485cde06354c8e8
+remote main: 39c58724afb30685bea761f53485cde06354c8e8
+
+Verdict: FAIL. AC3 requires a nonzero exit and the hook's explicit push-to-main
+refusal. Because local main already equaled remote main, Git had no ref update to
+send to the pre-push hook; the command exited zero without a refusal message.
+Remote main remained unchanged.
+
+Honest ceiling: the universal hook remains a speed bump, not a security boundary.
+The deliberate --no-verify bypass remains possible and was not tested. No local
+divergence, force push, direct ref mutation, or bypass was created to manufacture
+a denial transcript.
