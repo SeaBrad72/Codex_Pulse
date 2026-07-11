@@ -23,11 +23,34 @@ export function createProcessIo(bindings: ProcessBindings): CliIo {
   return {
     readStdin: async () => {
       let input = '';
+      let pendingCarriageReturn = false;
       bindings.stdin.setEncoding('utf8');
       for await (const chunk of bindings.stdin) {
-        input += chunk;
+        for (const character of chunk) {
+          if (pendingCarriageReturn) {
+            if (character === '\n') {
+              return input;
+            }
+            input += '\r';
+            pendingCarriageReturn = false;
+            if (input.length === 73) {
+              return input;
+            }
+          }
+          if (character === '\n') {
+            return input;
+          }
+          if (character === '\r') {
+            pendingCarriageReturn = true;
+            continue;
+          }
+          input += character;
+          if (input.length === 73) {
+            return input;
+          }
+        }
       }
-      return input;
+      return pendingCarriageReturn ? `${input}\r` : input;
     },
     writeStdout: (output) => {
       bindings.stdout.write(output);
@@ -65,9 +88,9 @@ export async function runCli(args: string[], io: CliIo): Promise<number> {
       continue;
     }
     if (argument?.startsWith('-')) {
-      return usageFailure(`error: unknown option: ${argument}`, io);
+      return usageFailure('error: unknown option', io);
     }
-    return usageFailure(`error: unexpected argument: ${argument}`, io);
+    return usageFailure('error: unexpected argument', io);
   }
 
   message ??= await io.readStdin();

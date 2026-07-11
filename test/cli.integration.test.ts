@@ -9,6 +9,14 @@ import { describe, expect, it } from 'vitest';
 const cliPath = fileURLToPath(new URL('../dist/cli.js', import.meta.url));
 const usage = 'usage: validate-commit [--message <message>] [--verbose]\n';
 
+function expectTerminalSafe(output: string): void {
+  const unexpectedControls = [...output.replaceAll('\n', '')].filter((character) => {
+    const code = character.charCodeAt(0);
+    return code < 32 || code === 127;
+  });
+  expect(unexpectedControls).toEqual([]);
+}
+
 function runWithOutputError(stream: 'stdout' | 'stderr', code: string) {
   const args = stream === 'stdout' ? ['--help'] : ['--message', 'bad message'];
   const script = `
@@ -145,17 +153,17 @@ describe('compiled validate-commit CLI', () => {
     {
       name: 'an unknown option',
       args: ['--wat'],
-      diagnostic: 'error: unknown option: --wat',
+      diagnostic: 'error: unknown option',
     },
     {
       name: 'an unknown short option',
       args: ['-x'],
-      diagnostic: 'error: unknown option: -x',
+      diagnostic: 'error: unknown option',
     },
     {
       name: 'an unexpected positional argument',
       args: ['feat: add probe'],
-      diagnostic: 'error: unexpected argument: feat: add probe',
+      diagnostic: 'error: unexpected argument',
     },
   ])('reports $name as a usage failure', ({ args, diagnostic }) => {
     const result = spawnSync(process.execPath, [cliPath, ...args], { encoding: 'utf8' });
@@ -163,6 +171,18 @@ describe('compiled validate-commit CLI', () => {
     expect(result.status).toBe(2);
     expect(result.stdout).toBe('');
     expect(result.stderr).toBe(`${diagnostic}\n${usage}`);
+  });
+
+  it.each([
+    ['unknown option', `--bad\u001b\u0007\n\rvalue`, 'error: unknown option'],
+    ['positional argument', `bad\u001b\u0007\n\rvalue`, 'error: unexpected argument'],
+  ])('does not reflect control bytes from an %s', (_name, argument, diagnostic) => {
+    const result = spawnSync(process.execPath, [cliPath, argument], { encoding: 'utf8' });
+
+    expect(result.status).toBe(2);
+    expect(result.stdout).toBe('');
+    expect(result.stderr).toBe(`${diagnostic}\n${usage}`);
+    expectTerminalSafe(result.stderr);
   });
 
   it('validates only the first line of a multiline --message argument', () => {
